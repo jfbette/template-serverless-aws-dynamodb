@@ -1,0 +1,2 @@
+const dynamoose = require("dynamoose");
+

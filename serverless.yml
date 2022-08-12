@@ -1,0 +1,73 @@
+service: pentest-backend-auth-dev
+
+frameworkVersion: ">=2.24.0"
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    # Comment if you don't have a DynamoDB running locally
+      noStart: true
+    migration:
+      dir: offline/migrations
+  logLevelMap:  
+    prod: info
+    staging: info
+    dev: info
+  logLevel: ${self:custom.logLevelMap.${opt:stage, self:provider.stage}, 'debug'}
+
+provider:
+  name: aws
+  region: eu-west-1
+  stage: dev
+  runtime: nodejs16.x
+  logRetentionInDays: 30
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    LOG_LEVEL: ${self:custom.logLevel}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  auth:
+    handler: index.handler
+    events:
+      - http: ANY /
+      - http: 'ANY /{proxy+}'
+
+resources:
+  Resources:
+    TodosDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: email
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

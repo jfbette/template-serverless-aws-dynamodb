@@ -1,0 +1,60 @@
+const { Router } = require('express');
+//const uuid = require('node-uuid');
+const { randomUUID } = require('crypto');
+var express = require('express');
+var router  = express.Router();
+var logger = require("../utils/logger.js");
+
+var Users = require('../models/users.js');
+
+
+/** 
+ * @swagger 
+ * /users: 
+ *   get: 
+ *     description: Get users 
+ *     responses:  
+ *       200: 
+ *         description: Success  
+ *   
+ */ 
+router.get('/', (req, res) => {
+    logger.info("Hello");
+    return res.json({});
+
+  });
+
+router.post('/', (req, res) => {
+
+    console.log("request " + req.body);
+    //var email = "test";
+    var email = req.body.email;
+    uuid = randomUUID();
+
+    newUser = new Users({
+        id: uuid,
+        email: email,
+    });
+
+    newUser.save((error) => {
+        if (error) {
+            logger.error("Can't create user " + email + "(" + uuid + ")");
+            // TODO
+            res.sendStatus(500);
+        } else {
+            logger.info("User " + email + " has been successfully created with ID: "+ uuid);
+            res.json({
+                "status": "ok",
+                "error": "null"
+            });
+        }
+    });
+
+
+
+
+
+});
+  
+
+module.exports = router;

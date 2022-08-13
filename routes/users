@@ -1,12 +1,11 @@
 const { Router } = require('express');
-//const uuid = require('node-uuid');
-const { randomUUID } = require('crypto');
 var express = require('express');
 var router  = express.Router();
 var logger = require("../utils/logger.js");
-
-var Users = require('../models/users.js');
-
+const { ErrorHandler } = require('../utils/error');
+const { body, validationResult } = require('express-validator');
+const { createUser } = require('../controllers/users.js');
+const { handleReponse } = require('../utils/apiResponse');
 
 /** 
  * @swagger 
@@ -24,37 +23,32 @@ router.get('/', (req, res) => {
 
   });
 
-router.post('/', (req, res) => {
+router.post(
+    '/',
+    body('email').isEmail(),
+    body('password').isLength({ min: 5 }),
+    (req, res) => {
 
-    console.log("request " + req.body);
-    //var email = "test";
-    var email = req.body.email;
-    uuid = randomUUID();
+    logger.info("inside post users");
+    // parameter error handling
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new ErrorHandler(400, errors.array());
+    }
+    logger.info("after validation args");
+    // parameter loading
+    const { email, password } = req.body;
+    console.log("ok1");
 
-    newUser = new Users({
-        id: uuid,
-        email: email,
-    });
-
-    newUser.save((error) => {
-        if (error) {
-            logger.error("Can't create user " + email + "(" + uuid + ")");
-            // TODO
-            res.sendStatus(500);
-        } else {
-            logger.info("User " + email + " has been successfully created with ID: "+ uuid);
-            res.json({
-                "status": "ok",
-                "error": "null"
-            });
-        }
-    });
-
-
-
-
-
+    //TODO: manage error?
+    const r = createUser(email, password);
+    res.status(201).json(
+        handleReponse(
+            {
+                statusCode: 201,
+                message: `User ${email} successfully created` 
+            })
+    );
 });
   
-
 module.exports = router;

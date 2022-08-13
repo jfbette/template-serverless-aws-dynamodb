@@ -5,8 +5,17 @@ frameworkVersion: ">=2.24.0"
 plugins:
   - serverless-dynamodb-local
   - serverless-offline
+  #- serverless-bundle
 
+package:
+  excludeDevDependencies: false
 custom:
+  bundle:
+    externals: all
+    caching: false
+    sourcemaps: false
+
+
   dynamodb:
     stages:
       - dev
@@ -55,7 +64,7 @@ functions:
 
 resources:
   Resources:
-    TodosDynamoDbTable:
+    AutDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:

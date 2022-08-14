@@ -1,0 +1,22 @@
+class ReponseHandler {
+    constructor(statusCode, message) {
+        this.statusCode = statusCode;
+        this.message = message;
+    }
+}
+
+const handleReponse = (payload) => {
+    const { statusCode, message } = payload;
+    return {
+      "status": "success",
+      "statusCode": statusCode,
+      "message": message
+    };
+  };
+  
+
+
+module.exports = {
+    ReponseHandler,
+    handleReponse
+}

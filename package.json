@@ -18,6 +18,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
+  "scripts": {
+    "start": "nodemon ./node_modules/.bin/serverless offline start --noPrependStageInUrl",
+    "migrate": "serverless dynamodb migrate"
+  },
   "license": "ISC",
   "devDependencies": {
     "serverless-dynamodb-local": "^0.2.40",

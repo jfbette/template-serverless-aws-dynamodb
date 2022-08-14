@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 const {logRequest} = require('./middleware/logger');
-const { handlerError } = require('./utils/error');
+const { handleError } = require('./utils/error');
 const userRouter = require('./routes/users');
 const dynamoose = require('dynamoose');
 
@@ -20,7 +20,7 @@ app.use(logRequest);
 
 // Handle uncaught errors
 app.use((err, req, res, next) => {
- handlerError(err, res);
+ handleError(err, res);
 });
 
 // Import all routes
